@@ -56,7 +56,12 @@ export const useCinemaStore = defineStore("cinema", {
         setDate(v) { this.filters.date = v; this.persist(); },
         setHall(v) { this.filters.hallId = v; this.persist(); },
 
-        openSession(id) { this.selectedSessionId = id; this.selectedSeats = []; this.persist(); },
+        openSession(id) {
+            this.selectedSessionId = id;
+            this.selectedSeats = [];
+            this.persist();
+        },
+
         toggleSeat(code) {
             const i = this.selectedSeats.indexOf(code);
             if (i >= 0) this.selectedSeats.splice(i, 1);

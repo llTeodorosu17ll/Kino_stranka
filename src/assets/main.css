@@ -3,4 +3,31 @@
 @tailwind utilities;
 
 :root { color-scheme: dark; }
-body { @apply bg-zinc-950 text-zinc-100; }
+
+body {
+    background: #09090b;
+    color: #fafafa;
+}
+
+/* Глобальный фон на весь сайт */
+#app {
+    min-height: 100vh;
+    background-image: url("/bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* тёмный слой поверх BG, чтобы было киношно */
+.app-overlay {
+    min-height: 100vh;
+    background: rgba(0,0,0,0.72);
+}
+
+/* “стекло” для блоков — blur + прозрачность */
+.glass {
+    background: rgba(16,16,20,0.55);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}

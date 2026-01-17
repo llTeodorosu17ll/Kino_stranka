@@ -1,7 +1,33 @@
 <template>
-  <div class="p-10 text-4xl font-bold text-red-500">Tailwind works</div>
+  <section class="max-w-6xl mx-auto px-4 py-6">
+    <MovieCarousel
+        :items="nowPlaying"
+        @buy="goBuyFromMovie"
+        @openSchedule="goSchedule"
+    />
+  </section>
 </template>
 
 <script>
-export default { name: "HomePage" };
+import { mapState } from "pinia";
+import { useCinemaStore } from "../stores/cinema";
+import MovieCarousel from "../components/cinema/MovieCarousel.vue";
+
+export default {
+  name: "HomePage",
+  components: { MovieCarousel },
+
+  computed: {
+    ...mapState(useCinemaStore, ["nowPlaying"]),
+  },
+
+  methods: {
+    goSchedule() {
+      this.$router.push("/schedule");
+    },
+    goBuyFromMovie() {
+      this.$router.push("/schedule");
+    },
+  },
+};
 </script>
