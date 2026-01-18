@@ -1,41 +1,59 @@
+// src/stores/cinema.js
 import { defineStore } from "pinia";
 import { movies } from "../data/movies";
 import { halls, sessions } from "../data/schedule";
+import { useAuthStore } from "./auth";
 
-const KEY = "kino_stranka_v1";
-const load = () => {
-    try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
-};
-const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+const KEY = "kino_cinema_v2";
+
+function load() {
+    try {
+        return JSON.parse(localStorage.getItem(KEY) || "null");
+    } catch {
+        return null;
+    }
+}
+function save(state) {
+    localStorage.setItem(KEY, JSON.stringify(state));
+}
 
 export const useCinemaStore = defineStore("cinema", {
-    state: () => load() || ({
-        movies, halls, sessions,
-        filters: { query: "", genre: "All", date: "", hallId: "all" },
-        selectedSessionId: null,
-        selectedSeats: [],
-        tickets: [],
-    }),
+    state: () =>
+        load() || {
+            movies,
+            halls,
+            sessions,
+
+            filters: { query: "", genre: "All", date: "", hallId: "all" },
+
+            selectedSessionId: null,
+            selectedSeats: [],
+
+            // ВАЖНО: билеты храним по пользователю
+            ticketsByUser: {
+                // [userId]: [ ticket, ticket, ... ]
+            },
+        },
 
     getters: {
-        nowPlaying: (s) => s.movies.filter(m => m.status === "now"),
-        comingSoon: (s) => s.movies.filter(m => m.status === "soon"),
-        genres: (s) => ["All", ...Array.from(new Set(s.movies.flatMap(m => m.genres))).sort()],
-        movieById: (s) => (id) => s.movies.find(m => m.id === id) || null,
-        hallById: (s) => (id) => s.halls.find(h => h.id === id) || null,
-        sessionById: (s) => (id) => s.sessions.find(x => x.id === id) || null,
-        filteredMovies(s) {
-            const q = s.filters.query.toLowerCase();
-            const g = s.filters.genre;
-            return s.movies
-                .filter(m => m.title.toLowerCase().includes(q))
-                .filter(m => g === "All" ? true : m.genres.includes(g));
+        nowPlaying(state) {
+            return state.movies.filter((m) => m.status === "now");
         },
-        filteredSessions(s) {
-            const { date, hallId } = s.filters;
-            return s.sessions
-                .filter(x => date ? x.date === date : true)
-                .filter(x => hallId === "all" ? true : x.hallId === hallId);
+
+        movieById: (state) => (id) => state.movies.find((m) => m.id === id) || null,
+        hallById: (state) => (id) => state.halls.find((h) => h.id === id) || null,
+        sessionById: (state) => (id) => state.sessions.find((s) => s.id === id) || null,
+
+        filteredSessions(state) {
+            const { date, hallId } = state.filters;
+            return state.sessions
+                .filter((s) => (date ? s.date === date : true))
+                .filter((s) => (hallId === "all" ? true : s.hallId === hallId));
+        },
+
+        ticketsForUser: (state) => (userId) => {
+            if (!userId) return [];
+            return state.ticketsByUser[userId] || [];
         },
     },
 
@@ -48,13 +66,22 @@ export const useCinemaStore = defineStore("cinema", {
                 filters: this.filters,
                 selectedSessionId: this.selectedSessionId,
                 selectedSeats: this.selectedSeats,
-                tickets: this.tickets,
+                ticketsByUser: this.ticketsByUser,
             });
         },
-        setQuery(v) { this.filters.query = v; this.persist(); },
-        setGenre(v) { this.filters.genre = v; this.persist(); },
-        setDate(v) { this.filters.date = v; this.persist(); },
-        setHall(v) { this.filters.hallId = v; this.persist(); },
+
+        setQuery(v) {
+            this.filters.query = v;
+            this.persist();
+        },
+        setDate(v) {
+            this.filters.date = v;
+            this.persist();
+        },
+        setHall(v) {
+            this.filters.hallId = v;
+            this.persist();
+        },
 
         openSession(id) {
             this.selectedSessionId = id;
@@ -63,28 +90,57 @@ export const useCinemaStore = defineStore("cinema", {
         },
 
         toggleSeat(code) {
-            const i = this.selectedSeats.indexOf(code);
-            if (i >= 0) this.selectedSeats.splice(i, 1);
+            const idx = this.selectedSeats.indexOf(code);
+            if (idx >= 0) this.selectedSeats.splice(idx, 1);
             else this.selectedSeats.push(code);
             this.persist();
         },
-        buyTickets() {
-            const s = this.sessionById(this.selectedSessionId);
-            if (!s || this.selectedSeats.length === 0) return;
 
-            this.tickets.unshift({
+        buyTickets() {
+            const auth = useAuthStore();
+            if (!auth.currentUserId) {
+                return { ok: false, message: "Najprv sa prihlás." };
+            }
+
+            const s = this.sessionById(this.selectedSessionId);
+            if (!s) return { ok: false, message: "Neplatný seans." };
+            if (this.selectedSeats.length === 0) return { ok: false, message: "Vyber miesta." };
+
+            const movie = this.movieById(s.movieId);
+
+            const ticket = {
                 id: "t_" + Date.now(),
-                sessionId: s.id,
+                userId: auth.currentUserId,
+                movieId: s.movieId,
+                movieTitle: movie ? movie.title : "Unknown",
+                hallId: s.hallId,
+                date: s.date,
+                time: s.time,
+                pricePerSeat: s.price,
                 seats: [...this.selectedSeats],
+                total: Number((s.price * this.selectedSeats.length).toFixed(2)),
                 createdAt: new Date().toISOString(),
-            });
+            };
+
+            if (!this.ticketsByUser[auth.currentUserId]) {
+                this.ticketsByUser[auth.currentUserId] = [];
+            }
+            this.ticketsByUser[auth.currentUserId].unshift(ticket);
 
             this.selectedSessionId = null;
             this.selectedSeats = [];
             this.persist();
+
+            return { ok: true, ticketId: ticket.id };
         },
-        removeTicket(id) {
-            this.tickets = this.tickets.filter(t => t.id !== id);
+
+        removeTicket(ticketId) {
+            const auth = useAuthStore();
+            const uid = auth.currentUserId;
+            if (!uid) return;
+
+            const list = this.ticketsByUser[uid] || [];
+            this.ticketsByUser[uid] = list.filter((t) => t.id !== ticketId);
             this.persist();
         },
     },

@@ -2,19 +2,19 @@
   <div class="relative rounded-3xl overflow-hidden border border-white/10 glass">
     <!-- ARROWS -->
     <button
-        class="hidden md:grid absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-2xl glass hover:bg-white/10 transition place-items-center"
+        class="hidden md:grid absolute left-4 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/35 hover:bg-black/55 border border-white/10 backdrop-blur transition place-items-center shadow-lg"
         aria-label="Prev"
         @click="prev"
     >
-      ‹
+      <span class="text-xl leading-none">‹</span>
     </button>
 
     <button
-        class="hidden md:grid absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-2xl glass hover:bg-white/10 transition place-items-center"
+        class="hidden md:grid absolute right-4 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/35 hover:bg-black/55 border border-white/10 backdrop-blur transition place-items-center shadow-lg"
         aria-label="Next"
         @click="next"
     >
-      ›
+      <span class="text-xl leading-none">›</span>
     </button>
 
     <Swiper
@@ -26,15 +26,23 @@
         @slideChange="onSlideChange"
     >
       <SwiperSlide v-for="m in items" :key="m.id">
-        <div class="relative h-[420px] md:h-[520px]">
-          <!-- BLURRED BACKGROUND -->
+        <div class="relative h-[440px] md:h-[540px]">
+          <!-- BACKDROP BASE -->
           <div
-              class="absolute inset-0 bg-center bg-cover scale-110 blur-2xl"
+              class="absolute inset-0 bg-center bg-cover"
               :style="{ backgroundImage: 'url(' + assetUrl(m.backdrop || m.poster) + ')' }"
           ></div>
 
-          <div class="absolute inset-0 bg-black/55"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-black/10"></div>
+          <!-- SOFT BLUR LAYER -->
+          <div
+              class="absolute inset-0 bg-center bg-cover scale-110 blur-2xl opacity-70"
+              :style="{ backgroundImage: 'url(' + assetUrl(m.backdrop || m.poster) + ')' }"
+          ></div>
+
+          <!-- VIGNETTE / GRADIENT -->
+          <div class="absolute inset-0 bg-black/45"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/10"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/25"></div>
 
           <!-- CONTENT -->
           <div class="relative h-full p-6 md:p-10 grid md:grid-cols-2 gap-8 items-center">
@@ -58,7 +66,7 @@
 
               <div class="flex flex-wrap gap-3 pt-2">
                 <button
-                    class="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 font-medium transition"
+                    class="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 font-medium transition shadow"
                     @click="$emit('buy', m.id)"
                 >
                   Kúpiť lístok
@@ -68,45 +76,21 @@
                     to="/schedule"
                     class="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition"
                 >
-                  Rozklad
+                  Filmy
                 </router-link>
               </div>
             </div>
 
-            <!-- RIGHT: poster -->
-            <div class="md:justify-self-end w-full md:w-[340px]">
-              <div class="rounded-3xl overflow-hidden border border-white/10 bg-black/20 shadow-xl">
+            <!-- RIGHT -->
+            <div class="md:justify-self-end w-full md:w-[350px]">
+              <div class="rounded-3xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl">
                 <div class="aspect-[2/3]">
                   <img
                       :src="assetUrl(m.poster)"
                       :alt="m.title"
-                      class="w-full h-full object-cover block"
+                      class="w-full h-full object-cover object-center block"
                       loading="lazy"
-                      @error="onImgError(m)"
                   />
-                </div>
-              </div>
-
-              <!-- small schedule card -->
-              <div class="mt-4 glass rounded-2xl p-4">
-                <div class="flex items-center justify-between">
-                  <div class="text-sm font-medium">Najbližšie časy</div>
-                  <div class="text-xs text-zinc-200/70">Dnes</div>
-                </div>
-
-                <div class="mt-3 grid grid-cols-3 gap-2">
-                  <button
-                      v-for="t in times"
-                      :key="t"
-                      class="py-2 rounded-xl bg-black/25 hover:bg-black/35 border border-white/10 text-sm transition"
-                      @click="$emit('openSchedule')"
-                  >
-                    {{ t }}
-                  </button>
-                </div>
-
-                <div class="mt-3 text-xs text-zinc-200/60">
-                  Klikni na čas → otvorí Rozklad.
                 </div>
               </div>
             </div>
@@ -116,17 +100,23 @@
       </SwiperSlide>
     </Swiper>
 
-    <!-- CUSTOM DOTS (micro background like screenshot) -->
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-      <div class="glass rounded-2xl px-4 py-2 flex items-center gap-2">
-        <button
-            v-for="(m, i) in items"
-            :key="m.id"
-            class="w-2.5 h-2.5 rounded-full transition"
-            :class="i === realIndex ? 'bg-sky-400' : 'bg-white/70 hover:bg-white'"
-            @click="goTo(i)"
-            aria-label="Slide dot"
-        />
+    <!-- PAGINATION (DOTS + PAGE COUNTER) -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50">
+      <div class="bg-black/35 border border-white/10 backdrop-blur rounded-2xl px-4 py-2 flex items-center gap-3 shadow">
+        <div class="text-xs text-white/80 tabular-nums">
+          {{ pageText }}
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+              v-for="(x, i) in items"
+              :key="x.id"
+              class="w-2.5 h-2.5 rounded-full transition"
+              :class="i === realIndex ? 'bg-sky-400' : 'bg-white/70 hover:bg-white'"
+              @click="goTo(i)"
+              aria-label="Slide dot"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -140,17 +130,21 @@ import "swiper/css";
 export default {
   name: "MovieCarousel",
   components: { Swiper, SwiperSlide },
-  props: {
-    items: { type: Array, default: () => [] },
-  },
-  emits: ["buy", "openSchedule"],
+  props: { items: { type: Array, default: () => [] } },
+  emits: ["buy"],
   data() {
     return {
       modules: [Autoplay],
-      times: ["16:45", "18:10", "19:30", "20:00", "21:50", "23:10"],
       swiper: null,
       realIndex: 0,
     };
+  },
+  computed: {
+    pageText() {
+      const total = this.items.length || 0;
+      const current = total ? this.realIndex + 1 : 0;
+      return `${current} / ${total}`;
+    },
   },
   methods: {
     onSwiper(swiper) {
@@ -168,7 +162,6 @@ export default {
     },
     goTo(i) {
       if (!this.swiper) return;
-      // slideToLoop работает корректно при loop=true, иначе slideTo
       if (this.swiper.params.loop) this.swiper.slideToLoop(i);
       else this.swiper.slideTo(i);
     },
@@ -178,10 +171,6 @@ export default {
       const cleanBase = base.endsWith("/") ? base : base + "/";
       const cleanPath = path.startsWith("/") ? path.slice(1) : path;
       return cleanBase + cleanPath;
-    },
-    onImgError(movie) {
-      console.error("Poster failed to load for:", movie?.title);
-      console.error("Expected URL:", this.assetUrl(movie?.poster));
     },
   },
 };
