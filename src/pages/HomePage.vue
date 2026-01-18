@@ -23,10 +23,9 @@ export default {
 
   methods: {
     goMovies() {
-      this.$router.push({ path: "/schedule" }); // страница списка фильмов (пока путь /schedule, но название Filmy)
+      this.$router.push({ path: "/schedule" });
     },
     goBuyFromMovie(movieId) {
-      // ВАЖНО: идём на страницу фильма
       this.$router.push({ path: `/movie/${movieId}` });
     },
   },

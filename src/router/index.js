@@ -6,13 +6,15 @@ import MoviesPage from "../pages/MoviesPage.vue";
 import AboutPage from "../pages/AboutPage.vue";
 import ProfilePage from "../pages/ProfilePage.vue";
 import MovieDetailPage from "../pages/MovieDetailPage.vue";
+import ReviewsPage from "../pages/ReviewsPage.vue";
 
 export default createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         { path: "/", name: "home", component: HomePage },
-        { path: "/schedule", name: "schedule", component: SchedulePage }, // теперь список фильмов
-        { path: "/movies", name: "movies", component: MoviesPage },
+        { path: "/schedule", name: "schedule", component: SchedulePage }, // Filmy
+        { path: "/movies", name: "movies", component: MoviesPage },       // Anonce
+        { path: "/reviews", name: "reviews", component: ReviewsPage },    // Recenzie
         { path: "/about", name: "about", component: AboutPage },
         { path: "/profile", name: "profile", component: ProfilePage },
         { path: "/movie/:id", name: "movieDetail", component: MovieDetailPage, props: true },

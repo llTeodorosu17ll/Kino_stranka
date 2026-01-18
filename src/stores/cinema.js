@@ -1,10 +1,10 @@
 // src/stores/cinema.js
 import { defineStore } from "pinia";
-import { movies } from "../data/movies";
-import { halls, sessions } from "../data/schedule";
+import { movies as moviesData } from "../data/movies";
+import { halls as hallsData, sessions as sessionsData } from "../data/schedule";
 import { useAuthStore } from "./auth";
 
-const KEY = "kino_cinema_v2";
+const KEY = "kino_cinema_v3"; // новая версия ключа, чтобы точно не тянуло старое
 
 function load() {
     try {
@@ -18,22 +18,25 @@ function save(state) {
 }
 
 export const useCinemaStore = defineStore("cinema", {
-    state: () =>
-        load() || {
-            movies,
-            halls,
-            sessions,
+    state: () => {
+        const persisted = load();
 
-            filters: { query: "", genre: "All", date: "", hallId: "all" },
+        return {
+            // ✅ ДАННЫЕ КИНО: всегда из файлов (обновляются сразу)
+            movies: moviesData,
+            halls: hallsData,
+            sessions: sessionsData,
 
-            selectedSessionId: null,
-            selectedSeats: [],
+            // ✅ UI фильтры и выбор (можно хранить)
+            filters: persisted?.filters || { query: "", genre: "All", date: "", hallId: "all" },
 
-            // ВАЖНО: билеты храним по пользователю
-            ticketsByUser: {
-                // [userId]: [ ticket, ticket, ... ]
-            },
-        },
+            selectedSessionId: persisted?.selectedSessionId || null,
+            selectedSeats: persisted?.selectedSeats || [],
+
+            // ✅ Билеты по пользователю (храним)
+            ticketsByUser: persisted?.ticketsByUser || {},
+        };
+    },
 
     getters: {
         nowPlaying(state) {
@@ -59,10 +62,8 @@ export const useCinemaStore = defineStore("cinema", {
 
     actions: {
         persist() {
+            // ✅ сохраняем ТОЛЬКО пользовательские данные, не movies/halls/sessions
             save({
-                movies: this.movies,
-                halls: this.halls,
-                sessions: this.sessions,
                 filters: this.filters,
                 selectedSessionId: this.selectedSessionId,
                 selectedSeats: this.selectedSeats,

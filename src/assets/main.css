@@ -31,3 +31,16 @@ body {
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 }
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+#appRoot {
+    min-height: 100vh;
+}
+

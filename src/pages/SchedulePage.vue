@@ -75,7 +75,7 @@ import { mapState, mapActions } from "pinia";
 import { useCinemaStore } from "../stores/cinema";
 
 export default {
-  name: "SchedulePage", // путь остаётся /schedule, но по смыслу это "Filmy"
+  name: "SchedulePage",
 
   computed: {
     ...mapState(useCinemaStore, ["filters", "filteredSessions", "movies"]),

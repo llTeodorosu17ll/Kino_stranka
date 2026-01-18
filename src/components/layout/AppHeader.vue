@@ -1,57 +1,51 @@
 <template>
   <header class="sticky top-0 z-50">
-    <div class="bg-zinc-950/80 backdrop-blur border-b border-white/10">
-      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-
-        <!-- Logo -->
-        <router-link to="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center font-bold shadow">
-            KS
-          </div>
+    <div class="bg-black/35 border-b border-white/10 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <!-- LOGO -->
+        <router-link to="/" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-red-600 grid place-items-center font-bold">KS</div>
           <div class="leading-tight">
-            <div class="text-sm font-semibold tracking-wide group-hover:text-white">
-              Kino Stránka
-            </div>
-            <div class="text-xs text-zinc-400 -mt-1">
-              moderný kino web
-            </div>
+            <div class="font-semibold">Kino Stránka</div>
+            <div class="text-xs text-zinc-300">moderný kino web</div>
           </div>
         </router-link>
 
-        <!-- Desktop nav -->
+        <!-- NAV -->
         <nav class="hidden md:flex items-center gap-2">
-          <NavPill to="/schedule" label="Rozklad" />
+          <NavPill to="/schedule" label="Filmy" />
           <NavPill to="/movies" label="Anonce" />
+          <NavPill to="/reviews" label="Recenzie" />
           <NavPill to="/about" label="O nás" />
         </nav>
 
-        <!-- Right -->
+        <!-- RIGHT -->
         <div class="flex items-center gap-2">
           <router-link
               to="/profile"
-              class="px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm transition"
+              class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition text-sm"
           >
             Profil
           </router-link>
 
+          <!-- mobile menu (simple) -->
           <button
-              class="md:hidden px-3 py-2 rounded-2xl bg-white/5 border border-white/10"
+              class="md:hidden px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition text-sm"
               @click="open = !open"
-              aria-label="Menu"
           >
-            ☰
+            Menu
           </button>
         </div>
-
       </div>
-    </div>
 
-    <!-- Mobile menu -->
-    <div v-if="open" class="md:hidden bg-zinc-950/95 border-b border-white/10">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
-        <router-link class="px-3 py-2 rounded-xl hover:bg-white/5" to="/schedule" @click="open=false">Rozklad</router-link>
-        <router-link class="px-3 py-2 rounded-xl hover:bg-white/5" to="/movies" @click="open=false">Anonce</router-link>
-        <router-link class="px-3 py-2 rounded-xl hover:bg-white/5" to="/about" @click="open=false">O nás</router-link>
+      <!-- MOBILE NAV -->
+      <div v-if="open" class="md:hidden border-t border-white/10">
+        <div class="max-w-6xl mx-auto px-4 py-3 grid gap-2">
+          <NavPill to="/schedule" label="Filmy" @click.native="open=false" />
+          <NavPill to="/movies" label="Anonce" @click.native="open=false" />
+          <NavPill to="/reviews" label="Recenzie" @click.native="open=false" />
+          <NavPill to="/about" label="O nás" @click.native="open=false" />
+        </div>
       </div>
     </div>
   </header>
@@ -65,11 +59,6 @@ export default {
   components: { NavPill },
   data() {
     return { open: false };
-  },
-  watch: {
-    $route() {
-      this.open = false;
-    },
   },
 };
 </script>

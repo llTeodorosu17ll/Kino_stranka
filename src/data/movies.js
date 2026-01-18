@@ -1,5 +1,6 @@
 // src/data/movies.js
 export const movies = [
+    // NOW PLAYING
     {
         id: "avatar-2009",
         title: "Avatar",
@@ -38,5 +39,33 @@ export const movies = [
         backdrop: "/backdrops/spongebob.jpg",
         description:
             "SpongeBob and Patrick set out on a rescue mission to save Gary after he is kidnapped, leading them into a wild adventure beyond Bikini Bottom.",
+    },
+
+    // COMING SOON (ANONCE)
+    {
+        id: "scream-1996",
+        title: "Scream",
+        year: 1996,
+        age: "18+",
+        durationMin: 111,
+        genres: ["Horror", "Mystery"],
+        status: "soon",
+        poster: "/posters/screamposter.jpeg",
+        backdrop: "/backdrops/scream.png",
+        description:
+            "A masked killer targets teenagers in a small town, turning horror-movie rules into a deadly game.",
+    },
+    {
+        id: "silent-hill-2006",
+        title: "Silent Hill",
+        year: 2006,
+        age: "16+",
+        durationMin: 125,
+        genres: ["Horror", "Mystery", "Fantasy"],
+        status: "soon",
+        poster: "/posters/silenthillposter.png",
+        backdrop: "/backdrops/silenthill.png",
+        description:
+            "A mother searches for her missing daughter and is drawn into a foggy town where reality and nightmare overlap.",
     },
 ];

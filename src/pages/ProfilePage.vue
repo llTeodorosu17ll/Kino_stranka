@@ -20,9 +20,7 @@
           </button>
         </div>
 
-        <!-- NOT LOGGED IN -->
         <div v-if="!isLoggedIn" class="grid md:grid-cols-2 gap-6">
-          <!-- Login -->
           <div class="glass rounded-2xl p-5 border border-white/10 space-y-4">
             <div class="text-lg font-semibold">Prihlásenie</div>
 
@@ -58,7 +56,6 @@
             </button>
           </div>
 
-          <!-- Register -->
           <div class="glass rounded-2xl p-5 border border-white/10 space-y-4">
             <div class="text-lg font-semibold">Registrácia</div>
 
@@ -105,7 +102,6 @@
           </div>
         </div>
 
-        <!-- LOGGED IN -->
         <div v-else class="space-y-6">
           <div class="glass rounded-2xl p-5 border border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
