@@ -73,7 +73,7 @@
 
               <div class="text-sm text-zinc-300">
                 <span class="text-white/90">Doprava:</span> MHD zastávka 2 min pešy<br />
-                <span class="text-white/90">Parkovanie:</span> 2h zdarma pri nákupe lístka
+                <span class="text-white/90">Parkovanie:</span> 3h zdarma pri nákupe lístka
               </div>
 
               <!-- Newsletter (demo) -->
